@@ -77,10 +77,11 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Model test error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to test model";
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to test model" },
+      { success: false, error: errorMessage },
       { status: 500 },
     );
   }

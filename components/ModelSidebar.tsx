@@ -289,7 +289,7 @@ export default function ModelSidebar({ isOpen, toggleSidebar }: ModelSidebarProp
             modelName: newConfig.model,
             configName: newConfig.name,
           },
-        })
+        }),
       );
 
       setSaveSuccess(true);
@@ -332,7 +332,7 @@ export default function ModelSidebar({ isOpen, toggleSidebar }: ModelSidebarProp
               modelName: updatedConfig.model,
               configName: updatedConfig.name,
             },
-          })
+          }),
         );
       }
     }
@@ -445,7 +445,7 @@ export default function ModelSidebar({ isOpen, toggleSidebar }: ModelSidebarProp
             modelName: selectedConfig.model,
             configName: selectedConfig.name,
           },
-        })
+        }),
       );
     } else {
       console.error("ModelSidebar: Config not found for id", id);
