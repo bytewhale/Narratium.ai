@@ -13,12 +13,12 @@ export class LLMNode extends NodeBase {
     super(config);
     this.toolClass = LLMNodeTools;
   }
-  
+
   protected getDefaultCategory(): NodeCategory {
     return NodeCategory.MIDDLE;
   }
 
-  protected async _call(input: NodeInput): Promise<NodeOutput> {    
+  protected async _call(input: NodeInput): Promise<NodeOutput> {
     const systemMessage = input.systemMessage;
     const userMessage = input.userMessage;
     const modelName = input.modelName;
@@ -34,32 +34,74 @@ export class LLMNode extends NodeBase {
       throw new Error("System message is required for LLMNode");
     }
 
-    if (!userMessage) { 
+    if (!userMessage) {
       throw new Error("User message is required for LLMNode");
     }
 
-    const llmResponse = await this.executeTool(
-      "invokeLLM",
-      systemMessage,
-      userMessage,
-      {
-        modelName,
-        apiKey,
-        baseUrl,
-        llmType,
-        temperature,
-        language,
-        streaming,
-        streamUsage,
+    const response = await fetch("/api/llm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    ) as string;
+      body: JSON.stringify({
+        systemMessage,
+        userMessage,
+        config: {
+          modelName,
+          apiKey,
+          baseUrl,
+          llmType,
+          temperature,
+          language,
+          streaming,
+          streamUsage,
+        },
+      }),
+    });
 
-    return {
-      llmResponse,
-      systemMessage,
-      userMessage,
-      modelName,
-      llmType,
-    };
+    const data = await response.json();
+
+    if (data.success) {
+      // 处理成功响应
+      console.log("LLM Response:", data.response);
+      if (data.tokenUsage) {
+        console.log("Token Usage:", data.tokenUsage);
+      }
+      return {
+        llmResponse: data.response,
+        systemMessage,
+        userMessage,
+        modelName,
+        llmType,
+      };
+    } else {
+      // 处理错误
+      console.error("LLM Error:", data.error);
+      throw new Error(data.error);
+    }
+
+    // const llmResponse = await this.executeTool(
+    //   "invokeLLM",
+    //   systemMessage,
+    //   userMessage,
+    //   {
+    //     modelName,
+    //     apiKey,
+    //     baseUrl,
+    //     llmType,
+    //     temperature,
+    //     language,
+    //     streaming,
+    //     streamUsage,
+    //   },
+    // ) as string;
+
+    // return {
+    //   llmResponse,
+    //   systemMessage,
+    //   userMessage,
+    //   modelName,
+    //   llmType,
+    // };
   }
-} 
+}
